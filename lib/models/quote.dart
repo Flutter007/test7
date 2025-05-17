@@ -13,10 +13,10 @@ class Quote {
     required this.createdAt,
   });
 
-  factory Quote.fromJsom(Map<String, dynamic> json) {
+  factory Quote.fromJson(Map<String, dynamic> json) {
     return Quote(
       id: json['id'],
-      categoryId: json['createdAt'],
+      categoryId: json['categoryId'],
       author: json['author'],
       quote: json['quote'],
       createdAt: DateTime.parse(json['createdAt']),

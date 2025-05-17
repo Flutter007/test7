@@ -7,22 +7,30 @@ import 'package:test7/widgets/quote_form/quote_form.dart';
 
 import '../widgets/quote_form/quote_form_controllers.dart';
 
-class QuoteFormScreen extends StatefulWidget {
-  const QuoteFormScreen({super.key});
+class EditQuoteScreen extends StatefulWidget {
+  const EditQuoteScreen({super.key});
 
   @override
-  State<QuoteFormScreen> createState() => _QuoteFormScreenState();
+  State<EditQuoteScreen> createState() => _EditQuoteScreenState();
 }
 
-class _QuoteFormScreenState extends State<QuoteFormScreen> {
+class _EditQuoteScreenState extends State<EditQuoteScreen> {
+  late QuotesProvider quotesProvider;
   final controller = QuoteFormControllers();
   String? selectedType = 'all-quotes';
-  late QuotesProvider quotesProvider;
+  final url =
+      'https://my-db-7777-default-rtdb.europe-west1.firebasedatabase.app';
+  late String id;
+  Quote? quote;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    quotesProvider = context.watch<QuotesProvider>();
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      id = ModalRoute.of(context)!.settings.arguments as String;
+      quotesProvider = context.read<QuotesProvider>();
+      quotesProvider.fetchPosts('$url/quotes/$id.json', id);
+    });
   }
 
   void sentQuote() async {
@@ -57,7 +65,7 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Create new quote here!')),
+      appBar: AppBar(title: Text('Edit quote here!')),
       body:
           quotesProvider.isCreating
               ? Center(child: CircularProgressIndicator())
@@ -88,7 +96,10 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
                     ),
                   ),
                   SizedBox(height: 14),
-                  ElevatedButton(onPressed: createQuote, child: Text('Create')),
+                  ElevatedButton(
+                    onPressed: createQuote,
+                    child: Text('Edit quote'),
+                  ),
                 ],
               ),
     );
