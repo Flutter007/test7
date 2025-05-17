@@ -16,19 +16,27 @@ class QuotesProvider extends ChangeNotifier {
   bool get isCreating => _isCreating;
   bool get isDeleting => _isDeleting;
 
-  Future<void> fetchPosts(String url, String id) async {
+  Future<void> fetchListQuotes(String? baseUrl, String? id) async {
     try {
       _isFetching = true;
       _isError = false;
       notifyListeners();
+
+      final fullUrl =
+          id == 'all-quotes'
+              ? '$baseUrl/quotes.json'
+              : '$baseUrl/quotes.json?orderBy="categoryId"&equalTo="$id"';
+
       final Map<String, dynamic>? response = await request(
-        id == 'all-quotes' ? url : '$url?orderBy="categoryId"&equalTo="$id"',
+        fullUrl,
         method: 'GET',
       );
+
       if (response == null) {
         _quotes = [];
         return;
       }
+
       List<Quote> newQuotes = [];
       for (final key in response.keys) {
         final quote = Quote.fromJson({...response[key], 'id': key});
@@ -47,7 +55,6 @@ class QuotesProvider extends ChangeNotifier {
     try {
       _isCreating = true;
       notifyListeners();
-
       await request('$url/quotes.json', method: 'POST', body: quote.toJson());
     } finally {
       _isCreating = false;
@@ -67,6 +74,19 @@ class QuotesProvider extends ChangeNotifier {
     } finally {
       _isCreating = false;
       notifyListeners();
+    }
+  }
+
+  Future<Quote?> fetchQuote(String id) async {
+    try {
+      final response = await request('$url/quotes/$id.json');
+      if (response == null) {
+        return null;
+      }
+      final quote = Quote.fromJson(response);
+      return quote;
+    } catch (e) {
+      return null;
     }
   }
 

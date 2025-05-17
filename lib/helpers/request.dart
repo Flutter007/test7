@@ -15,6 +15,8 @@ Future<dynamic> request(
     response = await http.post(uri, body: json.encode(body));
   } else if (method == 'DELETE') {
     response = await http.delete(uri);
+  } else if (method == 'PUT') {
+    response = await http.put(uri, body: json.encode(body));
   } else {
     throw Exception('Method not supported');
   }

@@ -15,21 +15,24 @@ class QuotesListScreen extends StatefulWidget {
 class _QuotesListScreenState extends State<QuotesListScreen> {
   late String id;
   late QuotesProvider quotesProvider;
-  final url =
-      'https://my-db-7777-default-rtdb.europe-west1.firebasedatabase.app/quotes.json';
+  final baseUrl =
+      'https://my-db-7777-default-rtdb.europe-west1.firebasedatabase.app/';
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       id = ModalRoute.of(context)!.settings.arguments as String;
       quotesProvider = context.read<QuotesProvider>();
-      quotesProvider.fetchPosts(url, id);
+      await quotesProvider.fetchListQuotes(baseUrl, id);
     });
   }
 
-  void goToQuoteForm(String id) {
-    Navigator.of(context).pushNamed(AppRoutes.edit, arguments: id);
+  void goToQuoteForm(String quoteId, String categoryId) {
+    Navigator.of(context).pushNamed(
+      AppRoutes.edit,
+      arguments: {'quoteId': quoteId, 'categoryId': categoryId},
+    );
   }
 
   void showDeletedMessage() {
@@ -40,6 +43,20 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
     }
   }
 
+  void deleteQuote(String deleteId, String categoryId) async {
+    try {
+      await quotesProvider.deleteQuote(deleteId);
+      showDeletedMessage();
+      await quotesProvider.fetchListQuotes(baseUrl, categoryId);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Something went wrong! Try later!')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final quotesProvider = context.watch<QuotesProvider>();
@@ -47,24 +64,21 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
     Widget body;
     if (quotesProvider.isFetching || quotesProvider.isDeleting) {
       body = Center(child: CircularProgressIndicator());
-    } else if (quotes.isEmpty) {
-      body = Center(child: Text('No quotes found!'));
     } else if (quotesProvider.isError) {
       body = Center(child: Text('Something went wrong! Try later!'));
+    } else if (quotes.isEmpty) {
+      body = Center(child: Text('No quotes found!'));
     } else {
       body = Column(
         children: [
+          Text('Long Press to Edit'),
           Expanded(
             child: ListView.builder(
               itemBuilder:
                   (ctx, i) => QuoteCard(
                     quote: quotes[i],
-                    onLongPress: () => goToQuoteForm(quotes[i].id!),
-                    deleteQuote: () async {
-                      await quotesProvider.deleteQuote(quotes[i].id!);
-                      showDeletedMessage();
-                      await quotesProvider.fetchPosts(url, id);
-                    },
+                    onLongPress: () => goToQuoteForm(quotes[i].id!, id),
+                    deleteQuote: () => deleteQuote(quotes[i].id!, id),
                   ),
               itemCount: quotes.length,
             ),
@@ -72,6 +86,6 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
         ],
       );
     }
-    return Scaffold(appBar: AppBar(title: Text(id.toUpperCase())), body: body);
+    return Scaffold(appBar: AppBar(title: Text('Quotes List')), body: body);
   }
 }

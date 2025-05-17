@@ -1,5 +1,5 @@
 class Quote {
-  final String? id;
+  String? id;
   final String categoryId;
   final String author;
   final String quote;

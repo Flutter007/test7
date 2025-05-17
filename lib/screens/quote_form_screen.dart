@@ -16,7 +16,7 @@ class QuoteFormScreen extends StatefulWidget {
 
 class _QuoteFormScreenState extends State<QuoteFormScreen> {
   final controller = QuoteFormControllers();
-  String? selectedType = 'all-quotes';
+  String? selectedType;
   late QuotesProvider quotesProvider;
 
   @override
@@ -39,6 +39,7 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
           context,
         ).showSnackBar(SnackBar(content: Text('Quote created successfully!')));
       }
+      clearFields();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -48,9 +49,19 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
     }
   }
 
+  void clearFields() {
+    controller.authorController.clear();
+    controller.quoteController.clear();
+    setState(() {
+      selectedType = null;
+    });
+  }
+
   void createQuote() {
-    if (controller.formKey.currentState!.validate()) {
+    if (controller.formKey.currentState!.validate() && selectedType != null) {
       sentQuote();
+    } else {
+      return;
     }
   }
 
