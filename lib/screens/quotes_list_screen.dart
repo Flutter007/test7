@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:test7/widgets/circular_progress.dart';
 import 'package:test7/widgets/quote_card.dart';
 
 import '../app_routes.dart';
@@ -43,17 +44,21 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
     }
   }
 
+  void showError() {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Something went wrong! Try later!')),
+      );
+    }
+  }
+
   void deleteQuote(String deleteId, String categoryId) async {
     try {
       await quotesProvider.deleteQuote(deleteId);
       showDeletedMessage();
       await quotesProvider.fetchListQuotes(baseUrl, categoryId);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Something went wrong! Try later!')),
-        );
-      }
+      showError();
     }
   }
 
@@ -62,8 +67,9 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
     final quotesProvider = context.watch<QuotesProvider>();
     final quotes = quotesProvider.quotes;
     Widget body;
+
     if (quotesProvider.isFetching || quotesProvider.isDeleting) {
-      body = Center(child: CircularProgressIndicator());
+      body = CircularProgress();
     } else if (quotesProvider.isError) {
       body = Center(child: Text('Something went wrong! Try later!'));
     } else if (quotes.isEmpty) {
@@ -73,14 +79,16 @@ class _QuotesListScreenState extends State<QuotesListScreen> {
         children: [
           Text('Long Press to Edit'),
           Expanded(
-            child: ListView.builder(
-              itemBuilder:
-                  (ctx, i) => QuoteCard(
-                    quote: quotes[i],
-                    onLongPress: () => goToQuoteForm(quotes[i].id!, id),
-                    deleteQuote: () => deleteQuote(quotes[i].id!, id),
-                  ),
-              itemCount: quotes.length,
+            child: SafeArea(
+              child: ListView.builder(
+                itemBuilder:
+                    (ctx, i) => QuoteCard(
+                      quote: quotes[i],
+                      onLongPress: () => goToQuoteForm(quotes[i].id!, id),
+                      deleteQuote: () => deleteQuote(quotes[i].id!, id),
+                    ),
+                itemCount: quotes.length,
+              ),
             ),
           ),
         ],

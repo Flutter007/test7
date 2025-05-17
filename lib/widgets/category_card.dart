@@ -20,7 +20,7 @@ class CategoryCard extends StatelessWidget {
                 child: Text(textAlign: TextAlign.start, category.meaning),
               ),
               onTap: onTap,
-              subtitle: Text('Go to quotes list'),
+              subtitle: Text('Tap to see quotes'),
             ),
           ),
         ],

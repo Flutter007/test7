@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:test7/models/category_of_quotes.dart';
 import 'package:test7/models/quote.dart';
 import 'package:test7/provider/quotes_provider.dart';
 import 'package:test7/widgets/quote_form/quote_form.dart';
+
+import '../widgets/circular_progress.dart';
+import '../widgets/custom_drop_down_menu.dart';
+import '../widgets/form_container.dart';
 import '../widgets/quote_form/quote_form_controllers.dart';
 
 class EditQuoteScreen extends StatefulWidget {
@@ -46,10 +49,6 @@ class _EditQuoteScreenState extends State<EditQuoteScreen> {
     });
   }
 
-  void goBack() {
-    Navigator.of(context).pop();
-  }
-
   @override
   void dispose() {
     controller.dispose();
@@ -57,7 +56,7 @@ class _EditQuoteScreenState extends State<EditQuoteScreen> {
     super.dispose();
   }
 
-  void sentQuote() async {
+  void sendQuote() async {
     try {
       final quote = Quote(
         categoryId: selectedType!,
@@ -82,9 +81,9 @@ class _EditQuoteScreenState extends State<EditQuoteScreen> {
     }
   }
 
-  void createQuote() async {
+  void updateQuote() async {
     if (controller.formKey.currentState!.validate()) {
-      sentQuote();
+      sendQuote();
     }
   }
 
@@ -95,39 +94,21 @@ class _EditQuoteScreenState extends State<EditQuoteScreen> {
       appBar: AppBar(title: Text('Edit quote here!')),
       body:
           quotesProvider.isCreating
-              ? Center(child: CircularProgressIndicator())
-              : Column(
-                children: [
-                  Center(
-                    child: QuoteForm(
-                      controller: controller,
-                      child: DropdownMenu(
-                        width: 330,
-                        label: Text('Choose category:'),
-                        initialSelection: selectedType,
-                        onSelected:
-                            (value) => setState(() {
-                              selectedType = value;
-                            }),
-                        dropdownMenuEntries:
-                            categories
-                                .where((c) => c.id != 'all-quotes')
-                                .map(
-                                  (t) => DropdownMenuEntry(
-                                    value: t.id,
-                                    label: t.meaning,
-                                  ),
-                                )
-                                .toList(),
-                      ),
-                    ),
+              ? CircularProgress()
+              : FormContainer(
+                form: QuoteForm(
+                  controller: controller,
+                  child: CustomDropDownMenu(
+                    selectedType: selectedType,
+                    onSelected: (value) {
+                      setState(() {
+                        selectedType = value;
+                      });
+                    },
                   ),
-                  SizedBox(height: 14),
-                  ElevatedButton(
-                    onPressed: createQuote,
-                    child: Text('Edit quote'),
-                  ),
-                ],
+                ),
+                onPressed: updateQuote,
+                buttonText: 'Update',
               ),
     );
   }

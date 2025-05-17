@@ -29,21 +29,20 @@ class QuoteCard extends StatelessWidget {
                 padding: EdgeInsets.all(10),
                 child: Text(
                   textAlign: TextAlign.start,
-                  quote.author,
+                  "${quote.author} said ....",
                   style: theme.textTheme.titleLarge,
                 ),
               ),
-
-              subtitle: Text(quote.quote, style: theme.textTheme.bodyLarge),
+              subtitle: Text(
+                '"${quote.quote}"',
+                style: theme.textTheme.titleMedium,
+              ),
               trailing: IconButton(
                 onPressed: deleteQuote,
                 icon: Icon(Icons.delete, color: theme.colorScheme.error),
               ),
             ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Text(' ${dateFormat.format(quote.createdAt)}'),
-            ),
+            Text(dateFormat.format(quote.createdAt)),
           ],
         ),
       ),

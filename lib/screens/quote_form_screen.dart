@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:test7/models/category_of_quotes.dart';
 import 'package:test7/models/quote.dart';
 import 'package:test7/provider/quotes_provider.dart';
+import 'package:test7/widgets/circular_progress.dart';
+import 'package:test7/widgets/custom_drop_down_menu.dart';
+import 'package:test7/widgets/form_container.dart';
 import 'package:test7/widgets/quote_form/quote_form.dart';
 
 import '../widgets/quote_form/quote_form_controllers.dart';
@@ -71,36 +73,21 @@ class _QuoteFormScreenState extends State<QuoteFormScreen> {
       appBar: AppBar(title: Text('Create new quote here!')),
       body:
           quotesProvider.isCreating
-              ? Center(child: CircularProgressIndicator())
-              : Column(
-                children: [
-                  Center(
-                    child: QuoteForm(
-                      controller: controller,
-                      child: DropdownMenu(
-                        width: 330,
-                        label: Text('Choose category:'),
-                        initialSelection: selectedType,
-                        onSelected:
-                            (value) => setState(() {
-                              selectedType = value;
-                            }),
-                        dropdownMenuEntries:
-                            categories
-                                .where((c) => c.id != 'all-quotes')
-                                .map(
-                                  (t) => DropdownMenuEntry(
-                                    value: t.id,
-                                    label: t.meaning,
-                                  ),
-                                )
-                                .toList(),
-                      ),
-                    ),
+              ? CircularProgress()
+              : FormContainer(
+                form: QuoteForm(
+                  controller: controller,
+                  child: CustomDropDownMenu(
+                    selectedType: selectedType,
+                    onSelected: (value) {
+                      setState(() {
+                        selectedType = value;
+                      });
+                    },
                   ),
-                  SizedBox(height: 14),
-                  ElevatedButton(onPressed: createQuote, child: Text('Create')),
-                ],
+                ),
+                onPressed: createQuote,
+                buttonText: 'Create',
               ),
     );
   }

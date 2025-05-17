@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test7/models/category_of_quotes.dart';
 import 'package:test7/widgets/category_card.dart';
-
 import '../app_routes.dart';
 
 class CategoryListScreen extends StatefulWidget {
@@ -24,8 +23,10 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Quotes App'),
-        actions: [IconButton(onPressed: goToQuoteForm, icon: Icon(Icons.add))],
+        title: Text('App for your Quotes!'),
+        actions: [
+          IconButton(onPressed: goToQuoteForm, icon: Icon(Icons.add, size: 30)),
+        ],
       ),
       body: Center(
         child: Column(
